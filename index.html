@@ -615,7 +615,7 @@
                     pergunta: 'Dados do Processo:',
                     tipo: 'campos',
                     campos: [
-                        { nome: 'numero_processo', label: 'Número do Processo', tipo: 'text' },
+                        { nome: 'numero_processo', label: 'Número do Processo', tipo: 'text', placeholder: '0000000-00.0000.0.00.0000' },
                         { nome: 'data_audiencia', label: 'Data', tipo: 'date' },
                         { nome: 'hora_inicio', label: 'Horário', tipo: 'time' }
                     ]
@@ -627,7 +627,23 @@
                     opcoes: [
                         { valor: 'condenatoria', texto: 'Condenatória' },
                         { valor: 'absolutoria', texto: 'Absolutória' },
-                        { valor: 'improcedencia', texto: 'Improcedência da Denúncia' }
+                        { valor: 'extincao_punibilidade', texto: 'Extinção da Punibilidade' }
+                    ]
+                },
+                {
+                    id: 'causa_extincao',
+                    pergunta: 'Causa da Extinção da Punibilidade:',
+                    tipo: 'condicional',
+                    condicao: (state) => state.respostas.tipo_sentenca === 'extincao_punibilidade',
+                    tipo_input: 'opcao',
+                    opcoes: [
+                        { valor: 'morte', texto: 'Pela morte do agente' },
+                        { valor: 'anistia', texto: 'Pela anistia, graça ou indulto' },
+                        { valor: 'retroatividade', texto: 'Pela retroatividade de lei que não mais considera o fato como criminoso' },
+                        { valor: 'prescricao', texto: 'Pela prescrição, decadência ou perempção' },
+                        { valor: 'renuncia', texto: 'Pela renúncia do direito de queixa ou pelo perdão aceito (crimes de ação privada)' },
+                        { valor: 'retratacao', texto: 'Pela retratação do agente (nos casos em que a lei admite)' },
+                        { valor: 'perdao_judicial', texto: 'Pelo perdão judicial (nos casos previstos em lei)' }
                     ]
                 },
                 {
@@ -635,7 +651,7 @@
                     pergunta: 'Fundamento Legal:',
                     tipo: 'campos',
                     campos: [
-                        { nome: 'fundamento_legal', label: 'Artigo do CPP', tipo: 'text', placeholder: 'Ex: Art. 386, VII do CPP' }
+                        { nome: 'fundamento_legal', label: 'Artigo do CPP/CP', tipo: 'text', placeholder: 'Ex: Art. 386, VII do CPP ou Art. 107 do CP' }
                     ]
                 },
                 {
@@ -1023,6 +1039,29 @@ ${r.interrogatorio_tipo === 'silencio' ? '<br><br>O réu exerceu seu DIREITO AO 
 <br><em>Juiz de Direito</em>`;
 
             } else if (state.tipoAta === 'sentenca') {
+                let textoSentenca = '';
+                let artigoExtincao = '';
+
+                if (r.tipo_sentenca === 'absolutoria') {
+                    textoSentenca = `O MM. Juiz ABSOLVEU o réu, com fundamento no <strong>${r.fundamento_legal || 'Art. 386 do CPP'}</strong>.`;
+                } else if (r.tipo_sentenca === 'condenatoria') {
+                    textoSentenca = `O MM. Juiz CONDENOU o réu, nos termos da fundamentação constante dos autos.`;
+                } else if (r.tipo_sentenca === 'extincao_punibilidade') {
+                    const causasExtincao = {
+                        'morte': { texto: 'pela morte do agente', inciso: 'I' },
+                        'anistia': { texto: 'pela anistia, graça ou indulto', inciso: 'II' },
+                        'retroatividade': { texto: 'pela retroatividade de lei que não mais considera o fato como criminoso', inciso: 'III' },
+                        'prescricao': { texto: 'pela prescrição, decadência ou perempção', inciso: 'IV' },
+                        'renuncia': { texto: 'pela renúncia do direito de queixa ou pelo perdão aceito, nos crimes de ação privada', inciso: 'V' },
+                        'retratacao': { texto: 'pela retratação do agente, nos casos em que a lei a admite', inciso: 'VI' },
+                        'perdao_judicial': { texto: 'pelo perdão judicial, nos casos previstos em lei', inciso: 'IX' }
+                    };
+
+                    const causa = causasExtincao[r.causa_extincao];
+                    artigoExtincao = r.fundamento_legal || `Art. 107, ${causa.inciso}, do Código Penal`;
+                    textoSentenca = `O MM. Juiz declarou <strong>EXTINTA A PUNIBILIDADE</strong> do acusado, ${causa.texto}, com fundamento no <strong>${artigoExtincao}</strong>.`;
+                }
+
                 ataHTML = `<strong>AUDIÊNCIA COM SENTENÇA</strong>
 
 <br><br><strong>PROCESSO:</strong> ${r.numero_processo || '[NÚMERO]'}
@@ -1030,15 +1069,13 @@ ${r.interrogatorio_tipo === 'silencio' ? '<br><br>O réu exerceu seu DIREITO AO 
 
 <br><br><strong>SENTENÇA PROFERIDA EM AUDIÊNCIA</strong>
 
-${r.tipo_sentenca === 'absolutoria' ? '<br><br>O MM. Juiz ABSOLVEU o réu, com fundamento no <strong>' + (r.fundamento_legal || 'Art. 386 do CPP') + '</strong>.' : ''}
-
-${r.tipo_sentenca === 'condenatoria' ? '<br><br>O MM. Juiz CONDENOU o réu, nos termos da fundamentação constante dos autos.' : ''}
-
-${r.tipo_sentenca === 'improcedencia' ? '<br><br>O MM. Juiz julgou IMPROCEDENTE a pretensão punitiva veiculada na denúncia, com fundamento no <strong>' + (r.fundamento_legal || 'Art. 386, VII do CPP') + '</strong>.' : ''}
+<br><br>${textoSentenca}
 
 <br><br><strong>DISPOSITIVO:</strong> ${r.dispositivo || '[RESUMO DO DISPOSITIVO]'}
 
 <br><br>Sentença publicada em audiência, saem os presentes intimados.
+
+${r.tipo_sentenca === 'extincao_punibilidade' ? '<br><br>Após o trânsito em julgado, arquivem-se os autos com as devidas baixas e anotações.' : ''}
 
 <br><br><strong>SENTENÇA REGISTRADA EM ÁUDIO E VÍDEO DISPONÍVEL NO PJe Mídias.</strong>
 
