@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistente de Atas - 1ª Vara Criminal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 30px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .step {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .question {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option-btn {
+            background: #f7f7f7;
+            border: 2px solid #e0e0e0;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        
+        .option-btn:hover {
+            background: #1e3c72;
+            color: white;
+            border-color: #1e3c72;
+            transform: translateX(5px);
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(30, 60, 114, 0.4);
+        }
+        
+        .navigation-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-nav {
+            flex: 1;
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-nav:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .btn-nav.restart {
+            background: #dc3545;
+        }
+        
+        .btn-nav.restart:hover {
+            background: #c82333;
+        }
+        
+        .output-container {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .output-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .output-text {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            font-size: 14px;
+            max-height: 500px;
+            overflow-y: auto;
+            line-height: 1.8;
+        }
+        
+        .btn-copy {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            margin-right: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn-copy:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .btn-copy.copied {
+            background: #17a2b8;
+        }
+        
+        .progress-bar {
+            background: #e0e0e0;
+            height: 6px;
+            border-radius: 3px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            height: 100%;
+            transition: width 0.5s;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚖️ Assistente de Atas de Audiência Criminal</h1>
+            <p>1ª Vara Criminal da Comarca de Timon - TJMA</p>
+        </div>
+        
+        <div class="content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            
+            <div class="step active" id="step1">
+                <div class="question">Qual tipo de ata você precisa gerar?</div>
+                <div class="options">
+                    <button class="option-btn" onclick="selectTipoAta('instrucao_julgamento')">
+                        ⚖️ Audiência de Instrução e Julgamento
+                    </button>
+                    <button class="option-btn" onclick="selectTipoAta('anpp')">
+                        🤝 Audiência de Homologação de ANPP
+                    </button>
+                    <button class="option-btn" onclick="selectTipoAta('sentenca')">
+                        📋 Audiência com Sentença
+                    </button>
+                    <button class="option-btn" onclick="selectTipoAta('adiamento')">
+                        🔄 Adiamento de Audiência
+                    </button>
+                </div>
+            </div>
+            
+            <div id="dynamicSteps"></div>
+            
+            <div class="step" id="stepOutput">
+                <div class="output-container">
+                    <div class="output-title">✅ Ata gerada com sucesso!</div>
+                    <div class="alert alert-info">
+                        <strong>Instruções:</strong> Revise o conteúdo abaixo e clique em "Copiar" para utilizar no sistema PJe.
+                    </div>
+                    <div class="output-text" id="outputText"></div>
+                    <button class="btn-copy" onclick="copyToClipboard()">📋 Copiar para Área de Transferência</button>
+                    <button class="btn-secondary" onclick="resetForm()">🔄 Gerar Nova Ata</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const state = {
+            tipoAta: null,
+            currentStep: 1,
+            totalSteps: 0,
+            respostas: {}
+        };
+
+        const fluxos = {
+            instrucao_julgamento: [
+                {
+                    id: 'dados_processo',
+                    pergunta: 'Dados do Processo:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'numero_processo', label: 'Número do Processo', tipo: 'text', placeholder: '0000000-00.0000.0.00.0000' },
+                        { nome: 'capitulacao', label: 'Capitulação Legal', tipo: 'text', placeholder: 'Art. 157, § 2°, I e II, do CP' },
+                        { nome: 'data_audiencia', label: 'Data da Audiência', tipo: 'date' },
+                        { nome: 'hora_inicio', label: 'Horário de Início', tipo: 'time' }
+                    ]
+                },
+                {
+                    id: 'link_audiencia',
+                    pergunta: 'Link da Webconferência:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'link_meet', label: 'Link Google Meet', tipo: 'text', placeholder: 'meet.google.com/xxx-xxxx-xxx' }
+                    ]
+                },
+                {
+                    id: 'partes',
+                    pergunta: 'Identificação das Partes:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'promotor', label: 'Nome do Promotor de Justiça', tipo: 'text', placeholder: 'Dr. Nome do Promotor' },
+                        { nome: 'nome_reu', label: 'Nome do(s) Réu(s)', tipo: 'textarea', placeholder: 'Nome completo do réu ou réus separados por vírgula' },
+                        { nome: 'tipo_defesa', label: 'Tipo de Defesa', tipo: 'select', opcoes: ['Defensoria Pública', 'Advogado Constituído'] }
+                    ]
+                },
+                {
+                    id: 'defensor_dados',
+                    pergunta: 'Dados do Defensor:',
+                    tipo: 'condicional',
+                    condicao: (state) => state.respostas.tipo_defesa === 'Advogado Constituído',
+                    tipo_input: 'campos',
+                    campos: [
+                        { nome: 'nome_defensor', label: 'Nome do Advogado', tipo: 'text' },
+                        { nome: 'oab_defensor', label: 'OAB', tipo: 'text', placeholder: 'OAB XX 00000' }
+                    ]
+                },
+                {
+                    id: 'defensor_publico',
+                    pergunta: 'Nome do Defensor Público:',
+                    tipo: 'condicional',
+                    condicao: (state) => state.respostas.tipo_defesa === 'Defensoria Pública',
+                    tipo_input: 'campos',
+                    campos: [
+                        { nome: 'nome_defensor_publico', label: 'Nome do Defensor Público', tipo: 'text', placeholder: 'Dr. Nome do Defensor' }
+                    ]
+                },
+                {
+                    id: 'presenca_reu',
+                    pergunta: 'Presença do(s) Réu(s):',
+                    tipo: 'opcao',
+                    opcoes: [
+                        { valor: 'presente', texto: 'Réu(s) presente(s)' },
+                        { valor: 'ausente', texto: 'Réu(s) ausente(s)' }
+                    ]
+                },
+                {
+                    id: 'estudantes',
+                    pergunta: 'Há estudantes presentes?',
+                    tipo: 'opcao',
+                    opcoes: [
+                        { valor: 'sim', texto: 'Sim' },
+                        { valor: 'nao', texto: 'Não' }
+                    ]
+                },
+                {
+                    id: 'dados_estudantes',
+                    pergunta: 'Dados dos Estudantes:',
+                    tipo: 'condicional',
+                    condicao: (state) => state.respostas.estudantes === 'sim',
+                    tipo_input: 'campos',
+                    campos: [
+                        { nome: 'estudantes_lista', label: 'Nome, matrícula e instituição', tipo: 'textarea', placeholder: 'Nome - Matrícula - Instituição (um por linha)' }
+                    ]
+                },
+                {
+                    id: 'testemunhas_acusacao',
+                    pergunta: 'Testemunhas de Acusação:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'testemunhas_acusacao', label: 'Testemunhas presentes (separadas por vírgula)', tipo: 'textarea', placeholder: 'Nome 1, Nome 2...' },
+                        { nome: 'testemunhas_ausentes_acusacao', label: 'Testemunhas ausentes (se houver)', tipo: 'textarea', placeholder: 'Nome 1, Nome 2...' }
+                    ]
+                },
+                {
+                    id: 'testemunhas_defesa',
+                    pergunta: 'Testemunhas de Defesa:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'testemunhas_defesa', label: 'Testemunhas presentes (separadas por vírgula)', tipo: 'textarea', placeholder: 'Nome 1, Nome 2...' },
+                        { nome: 'desistencia_testemunhas', label: 'Houve desistência de testemunhas? (Opcional)', tipo: 'textarea', placeholder: 'Nome das testemunhas dispensadas' }
+                    ]
+                },
+                {
+                    id: 'instrucao',
+                    pergunta: 'Status da Instrução Processual:',
+                    tipo: 'opcao',
+                    opcoes: [
+                        { valor: 'encerrada', texto: 'Instrução Encerrada' },
+                        { valor: 'adiada', texto: 'Audiência Adiada' }
+                    ]
+                },
+                {
+                    id: 'alegacoes',
+                    pergunta: 'Tipo de Alegações Finais:',
+                    tipo: 'condicional',
+                    condicao: (state) => state.respostas.instrucao === 'encerrada',
+                    tipo_input: 'opcao',
+                    opcoes: [
+                        { valor: 'orais', texto: 'Alegações Finais Orais' },
+                        { valor: 'memoriais', texto: 'Alegações Finais por Memoriais' }
+                    ]
+                },
+                {
+                    id: 'manifestacao_mp',
+                    pergunta: 'Manifestação do Ministério Público:',
+                    tipo: 'condicional',
+                    condicao: (state) => state.respostas.alegacoes === 'orais',
+                    tipo_input: 'campos',
+                    campos: [
+                        { nome: 'alegacoes_mp', label: 'Resumo das alegações do MP', tipo: 'textarea', placeholder: 'Resumo breve da manifestação do Ministério Público' }
+                    ]
+                },
+                {
+                    id: 'manifestacao_defesa',
+                    pergunta: 'Manifestação da Defesa:',
+                    tipo: 'condicional',
+                    condicao: (state) => state.respostas.alegacoes === 'orais',
+                    tipo_input: 'campos',
+                    campos: [
+                        { nome: 'alegacoes_defesa', label: 'Resumo das alegações da Defesa', tipo: 'textarea', placeholder: 'Resumo breve da manifestação da Defesa' }
+                    ]
+                },
+                {
+                    id: 'prazo_memoriais',
+                    pergunta: 'Prazos para Memoriais:',
+                    tipo: 'condicional',
+                    condicao: (state) => state.respostas.alegacoes === 'memoriais',
+                    tipo_input: 'campos',
+                    campos: [
+                        { nome: 'prazo_mp', label: 'Prazo MP (dias)', tipo: 'number', placeholder: '5' },
+                        { nome: 'prazo_defesa', label: 'Prazo Defesa (dias)', tipo: 'number', placeholder: '5' }
+                    ]
+                },
+                {
+                    id: 'despacho_final',
+                    pergunta: 'Há decisão/despacho adicional?',
+                    tipo: 'opcao',
+                    opcoes: [
+                        { valor: 'nao', texto: 'Não' },
+                        { valor: 'sim', texto: 'Sim, há decisão/despacho' }
+                    ]
+                },
+                {
+                    id: 'texto_despacho',
+                    pergunta: 'Texto do Despacho/Decisão:',
+                    tipo: 'condicional',
+                    condicao: (state) => state.respostas.despacho_final === 'sim',
+                    tipo_input: 'campos',
+                    campos: [
+                        { nome: 'despacho_texto', label: 'Texto do despacho ou decisão', tipo: 'textarea', placeholder: 'Digite o texto completo da decisão ou despacho' }
+                    ]
+                },
+                {
+                    id: 'hora_encerramento',
+                    pergunta: 'Horário de Encerramento:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'hora_encerramento', label: 'Hora', tipo: 'time' }
+                    ]
+                }
+            ],
+
+            anpp: [
+                {
+                    id: 'dados_processo',
+                    pergunta: 'Dados do Processo:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'numero_processo', label: 'Número do Processo', tipo: 'text', placeholder: '0000000-00.0000.0.00.0000' },
+                        { nome: 'capitulacao', label: 'Capitulação Legal', tipo: 'text', placeholder: 'Ex: Art. 12 da Lei nº 10.826/2003' },
+                        { nome: 'data_audiencia', label: 'Data da Audiência', tipo: 'date' },
+                        { nome: 'hora_inicio', label: 'Horário de Início', tipo: 'time' }
+                    ]
+                },
+                {
+                    id: 'link_audiencia',
+                    pergunta: 'Link da Webconferência:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'link_meet', label: 'Link Google Meet', tipo: 'text', placeholder: 'meet.google.com/xxx-xxxx-xxx' }
+                    ]
+                },
+                {
+                    id: 'partes',
+                    pergunta: 'Identificação das Partes:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'nome_investigado', label: 'Nome do Investigado/Denunciado', tipo: 'text' },
+                        { nome: 'tipo_defesa', label: 'Tipo de Defesa', tipo: 'select', opcoes: ['Defensoria Pública', 'Advogado Constituído'] }
+                    ]
+                },
+                {
+                    id: 'advogado_dados',
+                    pergunta: 'Dados do Advogado:',
+                    tipo: 'condicional',
+                    condicao: (state) => state.respostas.tipo_defesa === 'Advogado Constituído',
+                    tipo_input: 'campos',
+                    campos: [
+                        { nome: 'nome_advogado', label: 'Nome do Advogado', tipo: 'text', placeholder: 'Dr. Nome Completo' },
+                        { nome: 'oab_advogado', label: 'OAB', tipo: 'text', placeholder: 'OAB XX 00000' }
+                    ]
+                },
+                {
+                    id: 'defensor_publico',
+                    pergunta: 'Nome do Defensor Público:',
+                    tipo: 'condicional',
+                    condicao: (state) => state.respostas.tipo_defesa === 'Defensoria Pública',
+                    tipo_input: 'campos',
+                    campos: [
+                        { nome: 'nome_defensor_publico', label: 'Nome do Defensor Público', tipo: 'text' }
+                    ]
+                },
+                {
+                    id: 'clausulas_anpp',
+                    pergunta: 'Cláusulas do Acordo (Obrigações de Fazer):',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'clausula_1', label: 'Cláusula I - Primeira obrigação', tipo: 'textarea', placeholder: 'Ex: Adquirir 01 Tablet... para doação ao Centro...' },
+                        { nome: 'clausula_2', label: 'Cláusula II - Segunda obrigação (se houver)', tipo: 'textarea', placeholder: 'Ex: Renunciar ao valor de fiança...' },
+                        { nome: 'clausula_3', label: 'Cláusula III - Terceira obrigação (se houver)', tipo: 'textarea', placeholder: 'Ex: Renunciar aos bens apreendidos...' }
+                    ]
+                },
+                {
+                    id: 'prazo_cumprimento',
+                    pergunta: 'Prazo para Cumprimento das Obrigações:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'prazo_dias', label: 'Prazo em dias', tipo: 'number', placeholder: '30' }
+                    ]
+                },
+                {
+                    id: 'confirmacao_investigado',
+                    pergunta: 'Confirmações do Investigado:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'confessou_crime', label: 'Confessou a prática do crime?', tipo: 'select', opcoes: ['Sim', 'Não'] },
+                        { nome: 'acordo_clausulas', label: 'Está de acordo com as cláusulas?', tipo: 'select', opcoes: ['Sim', 'Não'] },
+                        { nome: 'ciente_restricao', label: 'Está ciente da restrição de 5 anos?', tipo: 'select', opcoes: ['Sim', 'Não'] }
+                    ]
+                },
+                {
+                    id: 'data_limite',
+                    pergunta: 'Data Limite para Cumprimento:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'data_limite_cumprimento', label: 'Data limite (será calculada automaticamente se deixar em branco)', tipo: 'date' }
+                    ]
+                },
+                {
+                    id: 'hora_encerramento',
+                    pergunta: 'Horário de Encerramento:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'hora_encerramento', label: 'Hora', tipo: 'time' }
+                    ]
+                },
+                {
+                    id: 'servidor',
+                    pergunta: 'Dados do Servidor que digitou:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'nome_servidor', label: 'Nome do Servidor', tipo: 'text', placeholder: 'Nome completo' },
+                        { nome: 'matricula_servidor', label: 'Matrícula', tipo: 'text', placeholder: '0000000' }
+                    ]
+                }
+            ],
+
+            sentenca: [
+                {
+                    id: 'dados_processo',
+                    pergunta: 'Dados do Processo:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'numero_processo', label: 'Número do Processo', tipo: 'text' },
+                        { nome: 'data_audiencia', label: 'Data', tipo: 'date' },
+                        { nome: 'hora_inicio', label: 'Horário', tipo: 'time' }
+                    ]
+                },
+                {
+                    id: 'tipo_sentenca',
+                    pergunta: 'Tipo de Sentença:',
+                    tipo: 'opcao',
+                    opcoes: [
+                        { valor: 'condenatoria', texto: 'Condenatória' },
+                        { valor: 'absolutoria', texto: 'Absolutória' },
+                        { valor: 'improcedencia', texto: 'Improcedência da Denúncia' }
+                    ]
+                },
+                {
+                    id: 'fundamento',
+                    pergunta: 'Fundamento Legal:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'fundamento_legal', label: 'Artigo do CPP', tipo: 'text', placeholder: 'Ex: Art. 386, VII do CPP' }
+                    ]
+                },
+                {
+                    id: 'dispositivo_sentenca',
+                    pergunta: 'Dispositivo da Sentença (resumo):',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'dispositivo', label: 'Resumo do dispositivo', tipo: 'textarea', placeholder: 'Breve resumo da parte dispositiva' }
+                    ]
+                },
+                {
+                    id: 'hora_encerramento',
+                    pergunta: 'Horário de Encerramento:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'hora_encerramento', label: 'Hora', tipo: 'time' }
+                    ]
+                }
+            ],
+
+            adiamento: [
+                {
+                    id: 'dados_processo',
+                    pergunta: 'Dados do Processo:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'numero_processo', label: 'Número do Processo', tipo: 'text' },
+                        { nome: 'data_audiencia', label: 'Data', tipo: 'date' },
+                        { nome: 'hora_inicio', label: 'Horário', tipo: 'time' }
+                    ]
+                },
+                {
+                    id: 'motivo_adiamento',
+                    pergunta: 'Motivo do Adiamento:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'motivo', label: 'Motivo', tipo: 'textarea', placeholder: 'Ex: Ausência de testemunha, pedido das partes, etc.' }
+                    ]
+                },
+                {
+                    id: 'nova_data',
+                    pergunta: 'Nova Data da Audiência:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'nova_data', label: 'Nova Data', tipo: 'date' },
+                        { nome: 'nova_hora', label: 'Novo Horário', tipo: 'time' }
+                    ]
+                },
+                {
+                    id: 'hora_encerramento',
+                    pergunta: 'Horário de Encerramento:',
+                    tipo: 'campos',
+                    campos: [
+                        { nome: 'hora_encerramento', label: 'Hora', tipo: 'time' }
+                    ]
+                }
+            ]
+        };
+
+        function selectTipoAta(tipo) {
+            state.tipoAta = tipo;
+            state.totalSteps = fluxos[tipo].length + 2;
+            nextStep();
+        }
+
+        function nextStep() {
+            const currentStepEl = document.querySelector('.step.active');
+            if (currentStepEl) currentStepEl.classList.remove('active');
+            
+            state.currentStep++;
+            updateProgress();
+            
+            if (state.currentStep <= state.totalSteps) {
+                renderDynamicStep();
+            }
+        }
+
+        function previousStep() {
+            if (state.currentStep <= 2) {
+                alert('Você já está na primeira pergunta!');
+                return;
+            }
+            
+            const currentStepEl = document.querySelector('.step.active');
+            if (currentStepEl) currentStepEl.classList.remove('active');
+            
+            state.currentStep--;
+            updateProgress();
+            renderDynamicStep();
+        }
+
+        function restartForm() {
+            if (confirm('Tem certeza que deseja reiniciar? Todos os dados serão perdidos.')) {
+                resetForm();
+            }
+        }
+
+        function renderDynamicStep() {
+            const fluxo = fluxos[state.tipoAta];
+            const stepIndex = state.currentStep - 2;
+            
+            if (stepIndex >= fluxo.length) {
+                gerarAta();
+                return;
+            }
+            
+            const stepConfig = fluxo[stepIndex];
+            
+            if (stepConfig.condicao && !stepConfig.condicao(state)) {
+                nextStep();
+                return;
+            }
+            
+            const container = document.getElementById('dynamicSteps');
+            container.innerHTML = '';
+            
+            const stepDiv = document.createElement('div');
+            stepDiv.className = 'step active';
+            
+            const question = document.createElement('div');
+            question.className = 'question';
+            question.textContent = stepConfig.pergunta;
+            stepDiv.appendChild(question);
+            
+            if (stepConfig.tipo === 'opcao' || stepConfig.tipo_input === 'opcao') {
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                
+                stepConfig.opcoes.forEach(opcao => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.textContent = opcao.texto;
+                    btn.onclick = () => {
+                        state.respostas[stepConfig.id] = opcao.valor;
+                        nextStep();
+                    };
+                    optionsDiv.appendChild(btn);
+                });
+                
+                stepDiv.appendChild(optionsDiv);
+            } else if (stepConfig.tipo === 'campos' || stepConfig.tipo_input === 'campos') {
+                stepConfig.campos.forEach(campo => {
+                    const inputGroup = document.createElement('div');
+                    inputGroup.className = 'input-group';
+                    
+                    const label = document.createElement('label');
+                    label.textContent = campo.label;
+                    inputGroup.appendChild(label);
+                    
+                    if (campo.tipo === 'select') {
+                        const select = document.createElement('select');
+                        select.id = campo.nome;
+                        
+                        campo.opcoes.forEach(opt => {
+                            const option = document.createElement('option');
+                            option.value = opt;
+                            option.textContent = opt;
+                            select.appendChild(option);
+                        });
+                        
+                        inputGroup.appendChild(select);
+                    } else if (campo.tipo === 'textarea') {
+                        const textarea = document.createElement('textarea');
+                        textarea.id = campo.nome;
+                        if (campo.placeholder) textarea.placeholder = campo.placeholder;
+                        inputGroup.appendChild(textarea);
+                    } else {
+                        const input = document.createElement('input');
+                        input.type = campo.tipo;
+                        input.id = campo.nome;
+                        if (campo.placeholder) input.placeholder = campo.placeholder;
+                        inputGroup.appendChild(input);
+                    }
+                    
+                    stepDiv.appendChild(inputGroup);
+                });
+                
+                const btnNext = document.createElement('button');
+                btnNext.className = 'btn-primary';
+                btnNext.textContent = 'Continuar ➡️';
+                btnNext.onclick = () => {
+                    stepConfig.campos.forEach(campo => {
+                        const input = document.getElementById(campo.nome);
+                        state.respostas[campo.nome] = input ? input.value : '';
+                    });
+                    nextStep();
+                };
+                stepDiv.appendChild(btnNext);
+            }
+            
+            const navDiv = document.createElement('div');
+            navDiv.className = 'navigation-buttons';
+            
+            const btnPrev = document.createElement('button');
+            btnPrev.className = 'btn-nav';
+            btnPrev.textContent = '⬅️ Voltar';
+            btnPrev.onclick = previousStep;
+            navDiv.appendChild(btnPrev);
+            
+            const btnRestart = document.createElement('button');
+            btnRestart.className = 'btn-nav restart';
+            btnRestart.textContent = '🔄 Reiniciar';
+            btnRestart.onclick = restartForm;
+            navDiv.appendChild(btnRestart);
+            
+            stepDiv.appendChild(navDiv);
+            container.appendChild(stepDiv);
+        }
+
+        function updateProgress() {
+            const percentage = (state.currentStep / state.totalSteps) * 100;
+            document.getElementById('progressFill').style.width = percentage + '%';
+        }
+
+        function formatarData(data) {
+            if (!data) return '';
+            const [ano, mes, dia] = data.split('-');
+            return `${dia}/${mes}/${ano}`;
+        }
+
+        function formatarHora(hora) {
+            if (!hora) return '';
+            return hora.replace(':', 'h');
+        }
+
+        function gerarAta() {
+            let ataHTML = '';
+            const r = state.respostas;
+            
+            if (state.tipoAta === 'instrucao_julgamento') {
+                const defensor = r.tipo_defesa === 'Defensoria Pública' 
+                    ? `Dr. ${r.nome_defensor_publico || '[NOME DO DEFENSOR PÚBLICO]'}`
+                    : `Dr. ${r.nome_defensor || '[NOME DO ADVOGADO]'} - ${r.oab_defensor || 'OAB'}`;
+
+                ataHTML = `<strong>AUDIÊNCIA DE INSTRUÇÃO E JULGAMENTO</strong>
+
+<br><br><strong>PROCESSO:</strong> ${r.numero_processo || '[NÚMERO DO PROCESSO]'}
+<br><strong>JUIZ:</strong> ROGÉRIO MONTELES DA COSTA
+<br><strong>PROMOTOR:</strong> ${r.promotor || '[NOME DO PROMOTOR]'}
+<br><strong>DENUNCIADO:</strong> ${r.nome_reu || '[NOME DO RÉU]'}
+<br><strong>DEFENSOR:</strong> ${defensor}
+<br><strong>CAPITULAÇÃO:</strong> ${r.capitulacao || '[CAPITULAÇÃO]'}
+<br><strong>DATA:</strong> ${formatarData(r.data_audiencia) || '[DATA]'} às ${formatarHora(r.hora_inicio) || '[HORA]'}
+<br><strong>LINK:</strong> ${r.link_meet || '[LINK DA AUDIÊNCIA]'}
+
+<br><br><strong>I - TERMO DE AUDIÊNCIA:</strong> Iniciada a audiência por sistema de Webconferência realizada por meio de acesso ao link ${r.link_meet || '[LINK]'}, na presença do Excelentíssimo Senhor Dr. ROGÉRIO MONTELES DA COSTA, Juiz de Direito Titular da 1ª Vara Criminal de Timon, foi constatada a presença do Promotor de Justiça, Dr. ${r.promotor || '[PROMOTOR]'} e do ${r.tipo_defesa === 'Defensoria Pública' ? 'Defensor Público, ' + defensor : 'Advogado Constituído, ' + defensor}.
+
+${r.presenca_reu === 'presente' ? '<br><br>Presente o(s) réu(s) ' + (r.nome_reu || '[NOME DO RÉU]') + '.' : '<br><br>Ausente o(s) réu(s) ' + (r.nome_reu || '[NOME DO RÉU]') + ', apesar de devidamente intimado(s).'}
+
+${r.estudantes === 'sim' && r.estudantes_lista ? '<br><br>Presentes os estudantes de Direito: ' + r.estudantes_lista.replace(/\n/g, '; ') + '.' : ''}
+
+${r.testemunhas_acusacao ? '<br><br><strong>Participaram da audiência por Webconferência as testemunhas de acusação:</strong> ' + r.testemunhas_acusacao : ''}
+
+${r.testemunhas_ausentes_acusacao ? '<br><br><strong>Ausentes as testemunhas de acusação:</strong> ' + r.testemunhas_ausentes_acusacao : ''}
+
+${r.testemunhas_defesa ? '<br><br><strong>Testemunhas de defesa presentes:</strong> ' + r.testemunhas_defesa : ''}
+
+${r.desistencia_testemunhas ? '<br><br>A Defesa requereu desistência das seguintes testemunhas: ' + r.desistencia_testemunhas + '. O Ministério Público e o MM. Juiz HOMOLOGARAM a desistência.' : ''}
+
+${r.presenca_reu === 'presente' ? '<br><br>Nesse momento, ao(s) réu(s) foi assegurado o direito de manter uma conversa reservada com a Defesa.' : ''}
+
+<br><br>Em seguida o MM. Juiz passou a inquirir as testemunhas. 
+
+<br><br><strong>INQUIRIÇÃO DAS TESTEMUNHAS:</strong> As testemunhas prestaram o compromisso legal de falar a verdade, previsto no art. 203 do CPP. Inquiridas sobre os fatos constantes na denúncia, prestaram depoimentos que ficaram registrados em áudio e vídeo, disponíveis no <strong>PJe Mídias</strong> através do link (chave de acesso) constante no final desta ata.
+
+${r.presenca_reu === 'presente' ? '<br><br>Nesse momento, foi assegurado ao(s) réu(s) o direito de manter conversa reservada com a Defesa.' : ''}
+
+${r.presenca_reu === 'presente' ? '<br><br><strong>INTERROGATÓRIO DO RÉU:</strong> O réu foi informado do seu direito ao silêncio, previsto no art. 186 do Código de Processo Penal. Interrogado sobre os fatos constantes na denúncia, prestou depoimento que ficou registrado em áudio e vídeo, disponível no <strong>PJe Mídias</strong> através do link (chave de acesso) constante no final desta ata.' : ''}
+
+${r.instrucao === 'encerrada' ? '<br><br><strong>Declaro encerrada a instrução processual.</strong>' : '<br><br><strong>Audiência adiada para nova data.</strong>'}
+
+${r.alegacoes === 'orais' ? `<br><br><strong>ALEGAÇÕES FINAIS ORAIS:</strong>
+
+<br><br>O Ministério Público, em alegações finais orais, ${r.alegacoes_mp || 'apresentou suas razões registradas em áudio e vídeo'}.
+
+<br><br>A Defesa, em alegações finais orais, ${r.alegacoes_defesa || 'apresentou suas razões registradas em áudio e vídeo'}.
+
+<br><br><strong>ALEGAÇÕES FINAIS REGISTRADAS EM ÁUDIO E VÍDEO DISPONÍVEL NO PJe Mídias</strong> através do link (chave de acesso) constante no final desta ata.` : ''}
+
+${r.alegacoes === 'memoriais' ? `<br><br><strong>II - DESPACHO:</strong> Declaro encerrada a instrução processual. DEFIRO o pedido e converto as alegações finais orais em memoriais. Determino que a secretaria intime o Ministério Público para que no prazo de <strong>${r.prazo_mp || '05'} (cinco) dias</strong> apresente as alegações finais em forma de memoriais. Transcorrido o prazo, a secretaria promova a intimação da Defesa para que no prazo de <strong>${r.prazo_defesa || '05'} (cinco) dias</strong> também apresente as alegações finais em forma de memoriais. Transcorridos os prazos, devem os autos serem conclusos para a sentença.` : ''}
+
+${r.despacho_final === 'sim' && r.despacho_texto ? '<br><br><strong>DESPACHO/DECISÃO:</strong> ' + r.despacho_texto : ''}
+
+<br><br>Nada mais foi dito, tendo o MM Juiz encerrado o presente termo que foi devidamente assinado.
+
+<br><br><strong>Áudio e vídeo de audiência disponível no PJe Mídias através do link (chave de acesso):</strong>
+<br>[INSERIR LINK DO PJE MÍDIAS]
+
+<br><br>Eu, [NOME DO SERVIDOR], matrícula [MATRÍCULA], digitei e subscrevi.
+
+<br><br><strong>Audiência encerrada às ${formatarHora(r.hora_encerramento) || '[HORA]'}.</strong>
+<br>Nada mais.
+
+<br><br><br><strong>ROGÉRIO MONTELES DA COSTA</strong>
+<br><em>Juiz de Direito</em>`;
+
+            } else if (state.tipoAta === 'anpp') {
+                const defensor = r.tipo_defesa === 'Defensoria Pública' 
+                    ? `Dr. ${r.nome_defensor_publico || '[NOME DO DEFENSOR PÚBLICO]'}`
+                    : `Dr. ${r.nome_advogado || '[NOME DO ADVOGADO]'} - ${r.oab_advogado || 'OAB'}`;
+
+                // Calcular data limite se não fornecida
+                let dataLimite = r.data_limite_cumprimento;
+                if (!dataLimite && r.data_audiencia && r.prazo_dias) {
+                    const dataAud = new Date(r.data_audiencia);
+                    dataAud.setDate(dataAud.getDate() + parseInt(r.prazo_dias));
+                    dataLimite = dataAud.toISOString().split('T')[0];
+                }
+
+                ataHTML = `<strong>AUDIÊNCIA DE HOMOLOGAÇÃO DE ACORDO DE NÃO PERSECUÇÃO PENAL</strong>
+
+<br><br><strong>PROCESSO:</strong> ${r.numero_processo || '[NÚMERO DO PROCESSO]'}
+<br><strong>JUIZ:</strong> ROGÉRIO MONTELES DA COSTA
+<br><strong>DENUNCIADO:</strong> ${r.nome_investigado || '[NOME DO INVESTIGADO]'}
+<br><strong>ADVOGADO:</strong> ${defensor}
+<br><strong>CAPITULAÇÃO:</strong> ${r.capitulacao || '[CAPITULAÇÃO]'}
+<br><strong>DATA:</strong> ${formatarData(r.data_audiencia) || '[DATA]'} - ${formatarHora(r.hora_inicio) || '[HORA]'}
+<br><strong>LINK:</strong> ${r.link_meet || '[LINK]'}
+
+<br><br><strong>I - TERMO DE AUDIÊNCIA:</strong> Iniciada a audiência por sistema de Webconferência realizada por meio de acesso ao link ${r.link_meet || '[LINK]'}, na presença da MMª. Juiz de Direito respondendo pela 1ª Vara Criminal da Comarca de Timon/MA, Dr. ROGÉRIO MONTELES DA COSTA, foi constatada a participação do ${r.tipo_defesa === 'Defensoria Pública' ? 'Defensor Público' : 'Advogado Constituído'}, ${defensor}, e do investigado ${r.nome_investigado || '[NOME]'}. 
+
+<br><br>Iniciada a audiência, o MM Juiz analisou os autos e verificou que o Ministério Público realizou Acordo de Não Persecução Penal (ANPP) com o acusado e seu defensor. O MM Juiz passou à análise para fins de homologação. 
+
+<br><br>Observou nas cláusulas do Termo de ANPP que o acusado confessou a prática do crime, lhe foi proposta a obrigação de fazer de:
+
+${r.clausula_1 ? '<br><br><strong>I</strong> - ' + r.clausula_1 : ''}
+
+${r.clausula_2 ? '<br><br><strong>II</strong> - ' + r.clausula_2 : ''}
+
+${r.clausula_3 ? '<br><br><strong>III</strong> - ' + r.clausula_3 : ''}
+
+<br><br>O MM Juiz, então, questionou ${r.nome_investigado || '[NOME]'} se ele está de acordo com as cláusulas propostas pelo Ministério Público, se ele confessou a prática do crime e se está ciente de que não poderá firmar novo acordo com a Justiça nos próximos 5 (cinco) anos. 
+
+<br><br>O investigado ${r.acordo_clausulas === 'Sim' ? 'confirmou que está de acordo com as cláusulas impostas' : 'não concordou com as cláusulas'}, ${r.ciente_restricao === 'Sim' ? 'que está ciente de que não poderá firmar novo acordo com a Justiça nos próximos 5 (cinco) anos' : 'manifestou dúvidas sobre as consequências'} e ${r.confessou_crime === 'Sim' ? 'que confessou ao Promotor de Justiça a prática do crime' : 'não confessou a prática do crime'}.
+
+<br><br>Com a palavra, a defesa requereu a homologação do Acordo de Não Persecução firmado e a intimação do Ministério Público para as providências legais. 
+
+<br><br>Em seguida o MM Juiz prolatou a seguinte DECISÃO:
+
+<br><br><strong>II - DECISÃO:</strong> "Analisando as cláusulas do Acordo de Não Persecução Penal firmado entre o acusado, seu defensor e o Ministério Público, entendo pela legalidade do ato ante a observância dos requisitos impostos pelo art. 28-A do CPP. O denunciado concordou com as cláusulas impostas, está ciente das consequências de firmar o acordo e confessou formalmente a prática do crime. O réu, em juízo, se comprometeu a cumprir a obrigação de fazer imposta, razão pela qual <strong>HOMOLOGO O ACORDO DE NÃO PERSECUÇÃO PENAL</strong> constante nos autos e <strong>DETERMINO A SUSPENSÃO DO PROCESSO</strong> pelo prazo de cumprimento da obrigação de fazer, a saber, <strong>${r.prazo_dias || '30'} (trinta) dias</strong>, qual seja, até <strong>${formatarData(dataLimite) || '[DATA LIMITE]'}</strong>, devendo o Ministério Público promover a instauração do procedimento de execução junto à Vara de Execução pelo sistema SEEU nos termos do artigo do art. 28-A, parágrafo 6º, do CPP. 
+
+<br><br>DETERMINO que o nome de ${r.nome_investigado || '[NOME]'} fique registrado nos nossos registros criminais deste juízo para fins de impedir que ele tenha direito a um novo acordo criminal no prazo de 05 (cinco) anos a contar da presente data. 
+
+<br><br>Por fim, havendo cumprimento integral o Juízo da Vara de Execução Penal determinará a extinção do processo. Caso contrário, haverá prosseguimento do feito. 
+
+<br><br>Intime-se o Ministério Público. Partes intimadas em audiência."
+
+<br><br>Nada mais foi dito, tendo o MM Juiz encerrado o presente termo que foi devidamente assinado. 
+
+<br><br><strong>Áudio e vídeo de audiência disponível no PJe Mídias através do link (chave de acesso):</strong>
+<br>[INSERIR LINK DO PJE MÍDIAS]
+
+<br><br>Eu, ${r.nome_servidor || '[NOME DO SERVIDOR]'}, matrícula ${r.matricula_servidor || '[MATRÍCULA]'}, digitei e subscrevi.
+
+<br><br><strong>Audiência encerrada às ${formatarHora(r.hora_encerramento) || '[HORA]'}.</strong>
+
+<br><br><br><strong>ROGÉRIO MONTELES DA COSTA</strong>
+<br><em>Juiz de Direito</em>`;
+
+            } else if (state.tipoAta === 'interrogatorio') {
+                ataHTML = `<strong>AUDIÊNCIA DE INTERROGATÓRIO</strong>
+
+<br><br><strong>PROCESSO:</strong> ${r.numero_processo || '[NÚMERO DO PROCESSO]'}
+<br><strong>JUIZ:</strong> ROGÉRIO MONTELES DA COSTA
+<br><strong>PROMOTOR:</strong> ${r.promotor || '[PROMOTOR]'}
+<br><strong>DENUNCIADO:</strong> ${r.nome_reu || '[NOME DO RÉU]'}
+<br><strong>CAPITULAÇÃO:</strong> ${r.capitulacao || '[CAPITULAÇÃO]'}
+<br><strong>DATA:</strong> ${formatarData(r.data_audiencia)} às ${formatarHora(r.hora_inicio)}
+
+<br><br><strong>I - TERMO DE AUDIÊNCIA:</strong> Iniciada a audiência de interrogatório do réu ${r.nome_reu || '[NOME]'}.
+
+<br><br><strong>INTERROGATÓRIO:</strong> O réu foi informado do seu direito ao silêncio, previsto no art. 186 do CPP. 
+
+${r.interrogatorio_tipo === 'confessou' ? '<br><br>O réu CONFESSOU a prática dos fatos descritos na denúncia.' : ''}
+${r.interrogatorio_tipo === 'negou' ? '<br><br>O réu NEGOU a autoria delitiva, afirmando ser inocente dos fatos que lhe são imputados.' : ''}
+${r.interrogatorio_tipo === 'silencio' ? '<br><br>O réu exerceu seu DIREITO AO SILÊNCIO, nos termos do art. 186 do CPP.' : ''}
+
+<br><br><strong>Interrogatório registrado em áudio e vídeo, disponível no PJe Mídias.</strong>
+
+<br><br><strong>PRÓXIMOS ATOS:</strong> ${r.proximos_atos || '[DETERMINAR PRÓXIMOS ATOS]'}
+
+<br><br>Audiência encerrada às <strong>${formatarHora(r.hora_encerramento)}</strong>.
+
+<br><br><strong>ROGÉRIO MONTELES DA COSTA</strong>
+<br><em>Juiz de Direito</em>`;
+
+            } else if (state.tipoAta === 'sentenca') {
+                ataHTML = `<strong>AUDIÊNCIA COM SENTENÇA</strong>
+
+<br><br><strong>PROCESSO:</strong> ${r.numero_processo || '[NÚMERO]'}
+<br><strong>DATA:</strong> ${formatarData(r.data_audiencia)} às ${formatarHora(r.hora_inicio)}
+
+<br><br><strong>SENTENÇA PROFERIDA EM AUDIÊNCIA</strong>
+
+${r.tipo_sentenca === 'absolutoria' ? '<br><br>O MM. Juiz ABSOLVEU o réu, com fundamento no <strong>' + (r.fundamento_legal || 'Art. 386 do CPP') + '</strong>.' : ''}
+
+${r.tipo_sentenca === 'condenatoria' ? '<br><br>O MM. Juiz CONDENOU o réu, nos termos da fundamentação constante dos autos.' : ''}
+
+${r.tipo_sentenca === 'improcedencia' ? '<br><br>O MM. Juiz julgou IMPROCEDENTE a pretensão punitiva veiculada na denúncia, com fundamento no <strong>' + (r.fundamento_legal || 'Art. 386, VII do CPP') + '</strong>.' : ''}
+
+<br><br><strong>DISPOSITIVO:</strong> ${r.dispositivo || '[RESUMO DO DISPOSITIVO]'}
+
+<br><br>Sentença publicada em audiência, saem os presentes intimados.
+
+<br><br><strong>SENTENÇA REGISTRADA EM ÁUDIO E VÍDEO DISPONÍVEL NO PJe Mídias.</strong>
+
+<br><br>Audiência encerrada às <strong>${formatarHora(r.hora_encerramento)}</strong>.
+
+<br><br><strong>ROGÉRIO MONTELES DA COSTA</strong>
+<br><em>Juiz de Direito</em>`;
+
+            } else if (state.tipoAta === 'adiamento') {
+                ataHTML = `<strong>TERMO DE ADIAMENTO DE AUDIÊNCIA</strong>
+
+<br><br><strong>PROCESSO:</strong> ${r.numero_processo || '[NÚMERO]'}
+<br><strong>DATA:</strong> ${formatarData(r.data_audiencia)} às ${formatarHora(r.hora_inicio)}
+
+<br><br><strong>MOTIVO DO ADIAMENTO:</strong> ${r.motivo || '[MOTIVO]'}
+
+<br><br><strong>NOVA DATA DESIGNADA:</strong> ${formatarData(r.nova_data) || '[DATA]'} às ${formatarHora(r.nova_hora) || '[HORA]'}
+
+<br><br>Partes presentes intimadas. As demais serão intimadas por secretaria.
+
+<br><br>Audiência encerrada às <strong>${formatarHora(r.hora_encerramento)}</strong>.
+
+<br><br><strong>ROGÉRIO MONTELES DA COSTA</strong>
+<br><em>Juiz de Direito</em>`;
+            }
+
+            document.getElementById('outputText').innerHTML = ataHTML;
+            document.getElementById('stepOutput').classList.add('active');
+        }
+
+        function copyToClipboard() {
+            const outputText = document.getElementById('outputText');
+            
+            const listener = function(e) {
+                const htmlContent = outputText.innerHTML;
+                const textContent = outputText.innerText;
+                
+                e.clipboardData.setData('text/html', htmlContent);
+                e.clipboardData.setData('text/plain', textContent);
+                e.preventDefault();
+            };
+            
+            document.addEventListener('copy', listener);
+            
+            const range = document.createRange();
+            range.selectNodeContents(outputText);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            try {
+                document.execCommand('copy');
+                
+                const btn = event.target;
+                btn.textContent = '✅ Copiado com formatação!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.textContent = '📋 Copiar para Área de Transferência';
+                    btn.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                console.error('Erro ao copiar:', err);
+                alert('Erro ao copiar. Por favor, selecione manualmente o texto e use Ctrl+C (ou Cmd+C no Mac).');
+            }
+            
+            selection.removeAllRanges();
+            document.removeEventListener('copy', listener);
+        }
+
+        function resetForm() {
+            state.tipoAta = null;
+            state.currentStep = 1;
+            state.totalSteps = 0;
+            state.respostas = {};
+            
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            document.getElementById('step1').classList.add('active');
+            document.getElementById('dynamicSteps').innerHTML = '';
+            document.getElementById('progressFill').style.width = '0%';
+        }
+    </script>
+</body>
+</html>
